@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { FileText, Sparkles, Download, CheckCircle, AlertTriangle, Upload, File } from "lucide-react";
+import { FileText, Sparkles, Download, CheckCircle, AlertTriangle, Upload, File, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
 
 type Suggestion = {
   type: "improvement" | "warning";
@@ -109,15 +110,25 @@ const ResumeOptimizerTab = () => {
     toast.success("Sugestão marcada como aplicada!");
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([resumeText], { type: "text/plain;charset=utf-8" });
+  const handleDownloadPDF = () => {
+    const doc = new jsPDF();
+    const lines = doc.splitTextToSize(resumeText, 170);
+    doc.setFontSize(11);
+    doc.text(lines, 20, 20);
+    doc.save("curriculo-otimizado.pdf");
+    toast.success("Currículo baixado em PDF!");
+  };
+
+  const handleDownloadWord = () => {
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>Currículo</title></head><body><pre style="font-family:Calibri,sans-serif;font-size:11pt;white-space:pre-wrap;">${resumeText}</pre></body></html>`;
+    const blob = new Blob([html], { type: "application/msword" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "curriculo-otimizado.txt";
+    a.download = "curriculo-otimizado.doc";
     a.click();
     URL.revokeObjectURL(url);
-    toast.success("Currículo baixado com sucesso!");
+    toast.success("Currículo baixado em Word!");
   };
 
   return (
@@ -204,9 +215,13 @@ const ResumeOptimizerTab = () => {
             <Sparkles className="w-4 h-4" />
             Analisar Currículo
           </Button>
-          <Button onClick={handleDownload} variant="outline" className="gap-2" disabled={!resumeText.trim()}>
+          <Button onClick={handleDownloadPDF} variant="outline" className="gap-2" disabled={!resumeText.trim()}>
             <Download className="w-4 h-4" />
-            Baixar sem Alterações
+            Baixar PDF
+          </Button>
+          <Button onClick={handleDownloadWord} variant="outline" className="gap-2" disabled={!resumeText.trim()}>
+            <FileDown className="w-4 h-4" />
+            Baixar Word
           </Button>
         </div>
       </div>
