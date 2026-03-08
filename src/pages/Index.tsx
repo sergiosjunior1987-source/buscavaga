@@ -75,6 +75,7 @@ const Index = () => {
         {activeTab === "resume" && <ResumeOptimizerTab />}
         {activeTab === "linkedin" && <LinkedInSearchTab />}
         {activeTab === "jobsearch" && <JobSearchTab />}
+        {activeTab === "agencies" && <RecruitmentAgenciesTab />}
         {activeTab === "donation" && <DonationTab />}
       </main>
     </div>
