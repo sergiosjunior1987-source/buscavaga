@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Briefcase, FileText, Search, Globe, Heart, Building2 } from "lucide-react";
+import { Briefcase, FileText, Search, Globe, Heart, Building2, GraduationCap } from "lucide-react";
 import PlatformsTab from "@/components/PlatformsTab";
 import ResumeOptimizerTab from "@/components/ResumeOptimizerTab";
 import LinkedInSearchTab from "@/components/LinkedInSearchTab";
 import JobSearchTab from "@/components/JobSearchTab";
 import RecruitmentAgenciesTab from "@/components/RecruitmentAgenciesTab";
+import InterviewGuideTab from "@/components/InterviewGuideTab";
 import DonationTab from "@/components/DonationTab";
 
 const tabs = [
@@ -13,6 +14,7 @@ const tabs = [
   { id: "linkedin", label: "Pesquisa LinkedIn", icon: Search },
   { id: "jobsearch", label: "Buscar Vagas", icon: Globe },
   { id: "agencies", label: "Recrutadores", icon: Building2 },
+  { id: "interview", label: "Entrevistas", icon: GraduationCap },
   { id: "donation", label: "Doações", icon: Heart },
 ] as const;
 
