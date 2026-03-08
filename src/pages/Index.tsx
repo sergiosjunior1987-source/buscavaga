@@ -7,6 +7,7 @@ import JobSearchTab from "@/components/JobSearchTab";
 import RecruitmentAgenciesTab from "@/components/RecruitmentAgenciesTab";
 import InterviewGuideTab from "@/components/InterviewGuideTab";
 import DonationTab from "@/components/DonationTab";
+import ThemeCustomizer from "@/components/ThemeCustomizer";
 
 const tabs = [
   { id: "platforms", label: "Plataformas", icon: Briefcase },
@@ -81,6 +82,8 @@ const Index = () => {
         {activeTab === "interview" && <InterviewGuideTab />}
         {activeTab === "donation" && <DonationTab />}
       </main>
+
+      <ThemeCustomizer />
     </div>
   );
 };
