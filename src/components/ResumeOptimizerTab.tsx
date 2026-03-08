@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { FileText, Sparkles, Download, CheckCircle, AlertTriangle } from "lucide-react";
+import { useState, useRef } from "react";
+import { FileText, Sparkles, Download, CheckCircle, AlertTriangle, Upload, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
@@ -18,7 +18,6 @@ const atsTemplates = [
 
 const generateSuggestions = (text: string): Suggestion[] => {
   const suggestions: Suggestion[] = [];
-
   if (!text.toLowerCase().includes("objetivo") && !text.toLowerCase().includes("resumo")) {
     suggestions.push({ type: "improvement", text: "Adicione um resumo profissional no topo do currículo (2-3 linhas).", applied: false });
   }
@@ -37,10 +36,8 @@ const generateSuggestions = (text: string): Suggestion[] => {
   if (text.includes("  ") || text.includes("\t")) {
     suggestions.push({ type: "warning", text: "Remova espaços duplos e tabulações — sistemas ATS podem interpretar incorretamente.", applied: false });
   }
-
   suggestions.push({ type: "improvement", text: "Use palavras-chave da vaga desejada no resumo e nas experiências.", applied: false });
   suggestions.push({ type: "improvement", text: "Ordene as experiências da mais recente para a mais antiga (ordem cronológica inversa).", applied: false });
-
   return suggestions;
 };
 
@@ -49,6 +46,50 @@ const ResumeOptimizerTab = () => {
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [analyzed, setAnalyzed] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const validTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    ];
+
+    if (!validTypes.includes(file.type)) {
+      toast.error("Formato não suportado. Envie um arquivo PDF ou Word (.doc, .docx).");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Arquivo muito grande. Máximo: 10MB.");
+      return;
+    }
+
+    setUploadedFile(file.name);
+
+    // For text extraction from uploaded files (basic approach for .txt-like content)
+    // PDF/Word parsing requires server-side processing. We inform the user.
+    if (file.type === "application/pdf") {
+      toast.info("PDF carregado! Para melhor análise, cole o conteúdo do seu currículo no campo de texto abaixo.");
+    } else {
+      toast.info("Arquivo Word carregado! Para melhor análise, cole o conteúdo do seu currículo no campo de texto abaixo.");
+    }
+
+    // Try reading as text (works for some cases)
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const text = event.target?.result as string;
+      if (text && text.length > 20 && !text.includes("\u0000")) {
+        setResumeText(text);
+        toast.success("Conteúdo extraído do arquivo com sucesso!");
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleAnalyze = () => {
     if (resumeText.trim().length < 20) {
@@ -84,7 +125,7 @@ const ResumeOptimizerTab = () => {
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-foreground">Otimizador de Currículo ATS</h2>
         <p className="text-muted-foreground mt-1">
-          Cole seu currículo abaixo para receber sugestões de melhoria no formato ATS 2026.
+          Envie seu currículo (PDF ou Word) ou cole o texto abaixo para receber sugestões de melhoria no formato ATS 2026.
         </p>
       </div>
 
@@ -114,8 +155,44 @@ const ResumeOptimizerTab = () => {
         </div>
       </div>
 
-      {/* Input Area */}
+      {/* File Upload */}
       <div className="glass-card rounded-lg p-6 mb-6">
+        <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+          <Upload className="w-4 h-4 text-primary" />
+          Enviar Currículo
+        </h3>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+          onChange={handleFileUpload}
+          className="hidden"
+        />
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          className="border-2 border-dashed border-border/60 rounded-lg p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+        >
+          <File className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+          <p className="text-sm font-medium text-foreground">
+            Clique para enviar ou arraste seu arquivo
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            Formatos aceitos: PDF, DOC, DOCX (máx. 10MB)
+          </p>
+          {uploadedFile && (
+            <div className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-medium">
+              <FileText className="w-3 h-3" />
+              {uploadedFile}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Text Input Area */}
+      <div className="glass-card rounded-lg p-6 mb-6">
+        <h3 className="text-sm font-semibold text-foreground mb-3">
+          Ou cole o conteúdo do currículo
+        </h3>
         <Textarea
           value={resumeText}
           onChange={(e) => setResumeText(e.target.value)}
@@ -166,7 +243,7 @@ const ResumeOptimizerTab = () => {
                   Aplicar
                 </Button>
               ) : (
-                <span className="text-xs text-success font-medium">Aplicada ✓</span>
+                <span className="text-xs text-green-600 dark:text-green-400 font-medium">Aplicada ✓</span>
               )}
             </div>
           ))}
