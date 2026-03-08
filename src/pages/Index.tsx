@@ -82,6 +82,8 @@ const Index = () => {
         {activeTab === "interview" && <InterviewGuideTab />}
         {activeTab === "donation" && <DonationTab />}
       </main>
+
+      <ThemeCustomizer />
     </div>
   );
 };
