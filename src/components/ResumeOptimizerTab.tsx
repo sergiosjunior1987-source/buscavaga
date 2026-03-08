@@ -215,9 +215,13 @@ const ResumeOptimizerTab = () => {
             <Sparkles className="w-4 h-4" />
             Analisar Currículo
           </Button>
-          <Button onClick={handleDownload} variant="outline" className="gap-2" disabled={!resumeText.trim()}>
+          <Button onClick={handleDownloadPDF} variant="outline" className="gap-2" disabled={!resumeText.trim()}>
             <Download className="w-4 h-4" />
-            Baixar sem Alterações
+            Baixar PDF
+          </Button>
+          <Button onClick={handleDownloadWord} variant="outline" className="gap-2" disabled={!resumeText.trim()}>
+            <FileDown className="w-4 h-4" />
+            Baixar Word
           </Button>
         </div>
       </div>
