@@ -1,8 +1,9 @@
 import { useState, useRef } from "react";
-import { FileText, Sparkles, Download, CheckCircle, AlertTriangle, Upload, File } from "lucide-react";
+import { FileText, Sparkles, Download, CheckCircle, AlertTriangle, Upload, File, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import jsPDF from "jspdf";
 
 type Suggestion = {
   type: "improvement" | "warning";
